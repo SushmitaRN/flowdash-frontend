@@ -37,6 +37,7 @@ import {
 
 interface User {
     id: string;
+    userId: string; // Ensure userId is captured
     name: string;
     role: string;
 }
@@ -82,9 +83,10 @@ export default function Bonuses() {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     useEffect(() => {
+        const role = user?.role?.toUpperCase();
         if (activeTab === "my-bonuses") {
             fetchMyBonuses();
-        } else if (activeTab === "manage-bonuses" && user?.role === "manager") {
+        } else if (activeTab === "manage-bonuses" && (role === "MANAGER" || role === "PROJECT_MANAGER")) {
             fetchManageData();
         }
     }, [activeTab, user]);
@@ -189,7 +191,7 @@ export default function Bonuses() {
                         <TabsTrigger value="my-bonuses" className="gap-2">
                             <Gift className="h-4 w-4" /> My Bonuses
                         </TabsTrigger>
-                        {user?.role === "manager" && (
+                        {(user?.role?.toUpperCase() === "MANAGER" || user?.role?.toUpperCase() === "PROJECT_MANAGER") && (
                             <TabsTrigger value="manage-bonuses" className="gap-2">
                                 <DollarSign className="h-4 w-4" /> Manage Bonuses
                             </TabsTrigger>
@@ -255,14 +257,20 @@ export default function Bonuses() {
                                 <Card className="w-48">
                                     <CardContent className="p-4 pt-4">
                                         <div className="text-sm text-gray-500">Total Given</div>
-                                        <div className="text-2xl font-bold text-[#0000cc]">${(stats.totalAllocated || 0).toLocaleString()}</div>
-                                        <p className="text-[10px] text-gray-400 mt-1">Incl. ${(stats.totalPending || 0).toLocaleString()} pending</p>
+                                        <div className="text-2xl font-bold text-[#0000cc]">
+                                            ${(Number(stats.totalAllocated) || 0).toLocaleString()}
+                                        </div>
+                                        <p className="text-[10px] text-gray-400 mt-1">
+                                            Incl. ${(Number(stats.totalPending) || 0).toLocaleString()} pending
+                                        </p>
                                     </CardContent>
                                 </Card>
                                 <Card className="w-48">
                                     <CardContent className="p-4 pt-4">
                                         <div className="text-sm text-gray-500">Approved</div>
-                                        <div className="text-2xl font-bold text-green-600">${(stats.totalApproved || 0).toLocaleString()}</div>
+                                        <div className="text-2xl font-bold text-green-600">
+                                            ${(Number(stats.totalApproved) || 0).toLocaleString()}
+                                        </div>
                                     </CardContent>
                                 </Card>
                             </div>
